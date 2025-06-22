@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thread-like Social Media Platform</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <style>
+    /* Import Inter font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    :root {
+      --primary-color: #3b82f6; /* Blue */
+      --bg-dark: #0d1117;
+      --bg-light: #f9fafb;
+      --text-dark: #222;
+      --text-light: #ddd;
+      --border-radius: 12px;
+      --spacing: 16px;
+      --transition-time: 0.3s;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* Dark mode for prefers-color-scheme */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: var(--bg-dark);
+        color: var(--text-light);
+      }
+    }
+
+    /* Material Icons styling */
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+      vertical-align: middle;
+      cursor: pointer;
+      user-select: none;
+      transition: color var(--transition-time) ease;
+    }
+    .material-symbols-outlined:hover,
+    .btn-icon:hover > .material-symbols-outlined {
+      color: var(--primary-color);
+    }
+    button:focus-visible, a:focus-visible {
+      outline-offset: 3px;
+      outline: 3px solid var(--primary-color);
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1050;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.05);
+      transition: background-color var(--transition-time) ease;
+    }
+    @media (prefers-color-scheme: dark) {
+      header {
+        background: #161b22;
+        border-color: #30363d;
+        box-shadow: 0 2px 10px rgb(255 255 255 / 0.05);
+      }
+    }
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 var(--spacing);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      user-select: none;
+      cursor: pointer;
+    }
+
+    /* Hamburger toggle button mobile */
+    .hamburger-btn {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+    }
+    @media (prefers-color-scheme: dark) {
+      .hamburger-btn {
+        color: var(--text-light);
+      }
+    }
+
+    /* Sidebar Left & Right */
+    .sidebar-left,
+    .sidebar-right {
+      background-color: white;
+      border-right: 1px solid #e2e8f0;
+      padding: var(--spacing);
+      overflow-y: auto;
+      height: calc(100vh - 56px);
+      position: sticky;
+      top: 56px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .sidebar-left,
+      .sidebar-right {
+        background-color: #161b22;
+        border-color: #30363d;
+      }
+    }
+
+    .sidebar-left {
+      max-width: 280px;
+      min-width: 220px;
+      flex-shrink: 0;
+      border-right: 1px solid #e2e8f0;
+    }
+    .sidebar-right {
+      max-width: 320px;
+      min-width: 260px;
+      flex-shrink: 0;
+      border-left: 1px solid #e2e8f0;
+    }
+    @media (prefers-color-scheme: dark) {
+      .sidebar-left {
+        border-right-color: #30363d;
+      }
+      .sidebar-right {
+        border-left-color: #30363d;
+      }
+    }
+
+    /* Nav items in sidebar */
+    .nav-item {
+      padding: 10px 16px;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      color: var(--text-dark);
+      user-select: none;
+      transition: background-color var(--transition-time);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-item:hover, .nav-item.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    @media (prefers-color-scheme: dark) {
+      .nav-item {
+        color: var(--text-light);
+      }
+      .nav-item:hover, .nav-item.active {
+        background-color: var(--primary-color);
+        color: white;
+      }
+    }
+
+    /* Main feed area */
+    main.feed {
+      padding: var(--spacing);
+      overflow-y: auto;
+      height: calc(100vh - 56px);
+      flex-grow: 1;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    @media (min-width: 1024px) {
+      main.feed {
+        margin: 0;
+        max-width: none;
+      }
+    }
+
+    /* Post Card */
+    .post {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.05);
+      padding: var(--spacing);
+      margin-bottom: 24px;
+      transition: box-shadow var(--transition-time);
+    }
+    .post:focus-within {
+      box-shadow: 0 0 0 3px var(--primary-color);
+      outline: none;
+    }
+    @media (prefers-color-scheme: dark) {
+      .post {
+        background: #161b22;
+        box-shadow: 0 2px 15px rgba(255,255,255,0.05);
+      }
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 2px solid var(--primary-color);
+    }
+    .username {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-dark);
+    }
+    .timestamp {
+      color: #777;
+      font-size: 0.8rem;
+      margin-left: auto;
+      user-select: none;
+    }
+    @media (prefers-color-scheme: dark) {
+      .username {
+        color: var(--text-light);
+      }
+      .timestamp {
+        color: #999;
+      }
+    }
+
+    .post-content {
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      white-space: pre-line;
+      color: var(--text-dark);
+    }
+    @media (prefers-color-scheme: dark) {
+      .post-content {
+        color: var(--text-light);
+      }
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 24px;
+      font-size: 1.3rem;
+      user-select: none;
+    }
+    .post-actions > button {
+      background: none;
+      border: none;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: color var(--transition-time);
+      padding: 4px;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .post-actions > button:hover,
+    .post-actions > button:focus-visible {
+      color: var(--primary-color);
+      outline-offset: 2px;
+      outline: 2px solid var(--primary-color);
+      background-color: rgba(59,130,246,0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      .post-actions > button {
+        color: #ccc;
+      }
+    }
+
+    /* New post input */
+    .new-post {
+      background: white;
+      padding: var(--spacing);
+      border-radius: var(--border-radius);
+      margin-bottom: 24px;
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .new-post {
+        background: #161b22;
+        box-shadow: 0 2px 15px rgba(255,255,255,0.05);
+      }
+    }
+    .new-post textarea {
+      width: 100%;
+      resize: vertical;
+      min-height: 80px;
+      border-radius: 10px;
+      padding: 12px;
+      border: 1.5px solid #cbd5e1;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-dark);
+      transition: border-color var(--transition-time);
+    }
+    .new-post textarea:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+    @media (prefers-color-scheme: dark) {
+      .new-post textarea {
+        background: #0d1117;
+        border-color: #30363d;
+        color: var(--text-light);
+      }
+      .new-post textarea:focus {
+        border-color: var(--primary-color);
+      }
+    }
+    .new-post-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .btn-primary {
+      background-color: var(--primary-color);
+      border: none;
+      padding: 10px 24px;
+      color: white;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color var(--transition-time);
+      user-select: none;
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .btn-primary:hover:not(:disabled),
+    .btn-primary:focus-visible:not(:disabled) {
+      background-color: #2563eb;
+      outline-offset: 3px;
+      outline: 3px solid #2563eb;
+    }
+
+    /* Responsive layout */
+
+    /* Mobile: single column with hamburger nav */
+    #sidebarLeft,
+    #sidebarRight {
+      display: none;
+    }
+    #sidebarLeft.collapsed,
+    #sidebarRight.collapsed {
+      display: none !important;
+    }
+
+    /* Content container flex */
+    .container-fluid > .row {
+      min-height: calc(100vh - 56px);
+    }
+
+    /* Tablet (768px - 1023px): collapsible left sidebar */
+    @media (min-width: 768px) {
+      #sidebarLeft {
+        display: block;
+      }
+      main.feed {
+        max-width: 700px;
+      }
+    }
+
+    /* Desktop 1024px - 1439px: three column layout */
+    @media (min-width: 1024px) {
+      #sidebarLeft {
+        display: block;
+      }
+      #sidebarRight {
+        display: block;
+      }
+      main.feed {
+        max-width: 600px;
+      }
+    }
+
+    /* Large desktop 1440px+ max width constraints */
+    @media (min-width: 1440px) {
+      .container-fluid {
+        max-width: 1366px;
+        margin: auto;
+      }
+    }
+
+    /* Scrollbar styling for better integration */
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--primary-color);
+      border-radius: 10px;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="app" class="d-flex flex-column" style="height:100vh;">
+    <header role="banner" class="header" aria-label="Primary navigation">
+      <div class="header-container">
+        <button
+          type="button"
+          class="hamburger-btn d-md-none"
+          :aria-expanded="sidebarOpen ? 'true' : 'false'"
+          aria-controls="sidebarLeft"
+          aria-label="Toggle navigation sidebar"
+          @click="sidebarOpen = !sidebarOpen"
+        >
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <div class="logo" tabindex="0" @keydown.enter="$refs.feedContainer.scrollTop = 0">ThreadSpace</div>
+        <nav class="d-none d-md-flex" aria-label="Primary Navigation">
+          <div
+            class="nav-item"
+            :class="{ active: activeNav === 'home' }"
+            role="link"
+            tabindex="0"
+            @click="activeNav = 'home'"
+            @keydown.enter="activeNav = 'home'"
+            aria-current="page"
+          >
+            <span class="material-symbols-outlined">home</span>
+            Home
+          </div>
+          <div
+            class="nav-item"
+            :class="{ active: activeNav === 'explore' }"
+            role="link"
+            tabindex="0"
+            @click="activeNav = 'explore'"
+            @keydown.enter="activeNav = 'explore'"
+          >
+            <span class="material-symbols-outlined">travel_explore</span>
+            Explore
+          </div>
+          <div
+            class="nav-item"
+            :class="{ active: activeNav === 'bookmarks' }"
+            role="link"
+            tabindex="0"
+            @click="activeNav = 'bookmarks'"
+            @keydown.enter="activeNav = 'bookmarks'"
+          >
+            <span class="material-symbols-outlined">bookmark</span>
+            Bookmarks
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <div class="container-fluid flex-grow-1 px-0">
+      <div class="row g-0 h-100">
+        <!-- Left Sidebar -->
+        <nav
+          id="sidebarLeft"
+          class="sidebar-left col-md-3 col-lg-3 d-flex flex-column"
+          :class="{ collapsed: !sidebarOpen && isMobile }"
+          aria-label="Main navigation sidebar"
+          role="navigation"
+          tabindex="-1"
+        >
+          <div class="mb-4 d-flex align-items-center gap-3">
+            <img
+              src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/1648f09c-34d2-466a-9d92-84d9f52b2d6c.png"
+              alt="User profile avatar"
+              class="avatar"
+              width="48"
+              height="48"
+              draggable="false"
+            />
+            <div>
+              <div class="username fw-bold">You</div>
+              <button @click="logout" class="btn btn-link p-0" aria-label="Logout">Logout</button>
+            </div>
+          </div>
+          <hr />
+          <div>
+            <div
+              class="nav-item"
+              :class="{ active: activeNav === 'home' }"
+              role="link"
+              tabindex="0"
+              @click="activeNav = 'home'"
+              @keydown.enter="activeNav = 'home'"
+            >
+              <span class="material-symbols-outlined">home</span>
+              Home
+            </div>
+            <div
+              class="nav-item"
+              :class="{ active: activeNav === 'explore' }"
+              role="link"
+              tabindex="0"
+              @click="activeNav = 'explore'"
+              @keydown.enter="activeNav = 'explore'"
+            >
+              <span class="material-symbols-outlined">travel_explore</span>
+              Explore
+            </div>
+            <div
+              class="nav-item"
+              :class="{ active: activeNav === 'bookmarks' }"
+              role="link"
+              tabindex="0"
+              @click="activeNav = 'bookmarks'"
+              @keydown.enter="activeNav = 'bookmarks'"
+            >
+              <span class="material-symbols-outlined">bookmark</span>
+              Bookmarks
+            </div>
+          </div>
+        </nav>
+
+        <!-- Main feed -->
+        <main
+          id="feedContainer"
+          class="feed col-12 col-md-6 col-lg-6"
+          tabindex="0"
+          ref="feedContainer"
+          aria-live="polite"
+          aria-label="Posts feed"
+        >
+          <section class="new-post" aria-label="Create new post">
+            <textarea
+              v-model="newPostText"
+              placeholder="What's happening?"
+              aria-multiline="true"
+              :aria-disabled="posting"
+              :disabled="posting"
+              @keydown.enter.exact.prevent="submitPost"
+              @keyup.enter.shift.prevent
+              rows="3"
+              :aria-describedby="'new-post-instructions'"
+            ></textarea>
+            <div id="new-post-instructions" class="sr-only">
+              Press Enter to post. Press Shift+Enter for a new line.
+            </div>
+            <div class="new-post-actions">
+              <button
+                class="btn-primary"
+                @click="submitPost"
+                :disabled="posting || newPostText.trim().length === 0"
+                aria-label="Submit new post"
+              >
+                Post
+              </button>
+            </div>
+          </section>
+
+          <section aria-live="polite" aria-relevant="additions">
+            <article
+              v-for="post in filteredPosts"
+              :key="post.id"
+              class="post"
+              tabindex="0"
+              :aria-label="'Post by ' + post.username + ', posted ' + post.timeAgo"
+              role="article"
+            >
+              <header class="post-header">
+                <img
+                  :src="post.avatar"
+                  alt="'Avatar of ' + post.username"
+                  class="avatar"
+                  width="48"
+                  height="48"
+                  draggable="false"
+                />
+                <div class="username" tabindex="0">{{ post.username }}</div>
+                <time :datetime="post.timestamp" class="timestamp" aria-label="Post time">{{ post.timeAgo }}</time>
+              </header>
+              <div class="post-content">{{ post.content }}</div>
+              <div class="post-actions" role="group" aria-label="Post actions">
+                <button
+                  aria-pressed="false"
+                  type="button"
+                  title="Like"
+                  @click="toggleLike(post)"
+                  :aria-pressed="post.liked.toString()"
+                  aria-label="Like post"
+                  class="btn-icon"
+                >
+                  <span class="material-symbols-outlined" :class="{ 'text-primary': post.liked }">
+                    thumb_up
+                  </span>
+                  <span>{{ post.likeCount }}</span>
+                </button>
+                <button
+                  type="button"
+                  title="Reply"
+                  aria-label="Reply to post"
+                  @click="replyToPost(post)"
+                  class="btn-icon"
+                >
+                  <span class="material-symbols-outlined">reply</span>
+                </button>
+                <button
+                  type="button"
+                  title="Share"
+                  aria-label="Share post"
+                  @click="sharePost(post)"
+                  class="btn-icon"
+                >
+                  <span class="material-symbols-outlined">share</span>
+                </button>
+              </div>
+            </article>
+          </section>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside
+          id="sidebarRight"
+          class="sidebar-right col-lg-3 d-none d-lg-flex flex-column"
+          aria-label="Trending topics and recommendations"
+          role="complementary"
+          tabindex="-1"
+        >
+          <h2 class="h5 mb-3">Trending Topics</h2>
+          <ul class="list-unstyled">
+            <li v-for="topic in trendingTopics" :key="topic" tabindex="0" class="mb-2" style="cursor:pointer" @click="filterByTopic(topic)">
+              <span class="material-symbols-outlined me-1" aria-hidden="true">local_fire_department</span> {{ topic }}
+            </li>
+          </ul>
+          <hr />
+          <h2 class="h5 mb-3">Recommendations</h2>
+          <ul class="list-unstyled">
+            <li v-for="user in recommendations" :key="user.username" class="mb-3 d-flex align-items-center gap-2" tabindex="0" style="cursor:pointer" @click="viewProfile(user.username)">
+              <img :src="user.avatar" alt="'Avatar of ' + user.username" class="avatar" width="36" height="36" draggable="false" />
+              <span>{{ user.username }}</span>
+              <button class="btn btn-sm btn-primary ms-auto" @click.stop="followUser(user.username)">Follow</button>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vue.js CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- Bootstrap Bundle (includes Popper for tooltips) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        // State variables
+        const sidebarOpen = ref(false);
+        const activeNav = ref('home');
+        const newPostText = ref('');
+        const posting = ref(false);
+        const posts = ref([
+          {
+            id: 1,
+            username: 'alice',
+            avatar: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/423e19ef-1e65-4021-b189-529bc77a6043.png',
+            timestamp: '2024-06-01T14:00:00Z',
+            content: 'Welcome to ThreadSpace! This is your first post.',
+            liked: false,
+            likeCount: 2,
+          },
+          {
+            id: 2,
+            username: 'bob',
+            avatar: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f686942d-05ad-439c-ba83-df939e8f0cd7.png',
+            timestamp: '2024-06-02T16:30:00Z',
+            content: 'Excited to join this new platform! #welcome',
+            liked: false,
+            likeCount: 5,
+          },
+        ]);
+        const trendingTopics = ref(['#VueJS', '#WebDev', '#Bootstrap', '#OpenSource', '#ThreadsClone']);
+        const recommendations = ref([
+          { username: 'carol', avatar: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3ef077fa-9132-4562-ba4c-6eda2dedee70.png' },
+          { username: 'dave', avatar: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/32877aa1-4211-48de-b56b-10540bcbe28d.png' },
+          { username: 'eve', avatar: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/fe32cc72-00b1-4a15-8293-a3cf2b2e1580.png' },
+        ]);
+        const filterTopic = ref(null);
+
+        // Computed filtered posts
+        const filteredPosts = computed(() => {
+          if (!filterTopic.value) {
+            return posts.value.slice().reverse();
+          }
+          return posts.value
+            .filter((post) => post.content.toLowerCase().includes(filterTopic.value.toLowerCase()))
+            .slice()
+            .reverse();
+        });
+
+        // Utilities
+        function timeAgo(timestamp) {
+          const now = new Date();
+          const past = new Date(timestamp);
+          const seconds = Math.floor((now - past) / 1000);
+          if (seconds < 60) return 'Just now';
+          if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+          if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+          if (seconds < 2592000) return Math.floor(seconds / 86400) + 'd ago';
+          return past.toLocaleDateString();
+        }
+
+        // Add timeAgo property to posts reactively
+        onMounted(() => {
+          setInterval(() => {
+            posts.value = posts.value.map((post) => ({
+              ...post,
+              timeAgo: timeAgo(post.timestamp),
+            }));
+          }, 60000); // Update every minute
+          // Initial timeAgo calculation
+          posts.value = posts.value.map((post) => ({
+            ...post,
+            timeAgo: timeAgo(post.timestamp),
+          }));
+        });
+
+        // Posting new post
+        function submitPost() {
+          if (!newPostText.value.trim()) return;
+          posting.value = true;
+          // Simulate async post creation
+          setTimeout(() => {
+            posts.value.push({
+              id: Date.now(),
+              username: 'You',
+              avatar: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0f516c50-b92d-4eb4-af1b-2be0527073d5.png',
+              timestamp: new Date().toISOString(),
+              content: newPostText.value.trim(),
+              liked: false,
+              likeCount: 0,
+              timeAgo: 'Just now',
+            });
+            newPostText.value = '';
+            posting.value = false;
+            // Scroll feed to top
+            const feed = document.getElementById('feedContainer');
+            if (feed) feed.scrollTop = 0;
+          }, 500);
+        }
+
+        function toggleLike(post) {
+          if (!post.liked) {
+            post.likeCount++;
+          } else {
+            post.likeCount--;
+          }
+          post.liked = !post.liked;
+        }
+
+        function replyToPost(post) {
+          alert(`Reply to post by ${post.username} not implemented.`);
+        }
+
+        function sharePost(post) {
+          if (navigator.share) {
+            navigator.share({
+              title: `Post by ${post.username} on ThreadSpace`,
+              text: post.content,
+              url: window.location.href,
+            }).catch(() => {});
+          } else {
+            alert('Share feature not supported in this browser.');
+          }
+        }
+
+        function filterByTopic(topic) {
+          filterTopic.value = topic;
+          activeNav.value = 'explore';
+          sidebarOpen.value = false;
+          // Scroll feed to top
+          const feed = document.getElementById('feedContainer');
+          if (feed) feed.scrollTop = 0;
+        }
+
+        function viewProfile(username) {
+          alert(`View profile of ${username} not implemented.`);
+        }
+
+        function followUser(username) {
+          alert(`Followed ${username}`);
+        }
+
+        function logout() {
+          alert('Logout not implemented.');
+        }
+
+        // Detect mobile viewport for sidebar collapsing
+        const isMobile = ref(window.innerWidth < 768);
+        function handleResize() {
+          isMobile.value = window.innerWidth < 768;
+          if (!isMobile.value) {
+            sidebarOpen.value = true;
+          }
+        }
+        window.addEventListener('resize', handleResize);
+
+        // Initially open sidebar on desktop/tablet
+        sidebarOpen.value = !isMobile.value;
+
+        return {
+          sidebarOpen,
+          activeNav,
+          newPostText,
+          posting,
+          posts,
+          filteredPosts,
+          trendingTopics,
+          recommendations,
+          toggleLike,
+          replyToPost,
+          sharePost,
+          submitPost,
+          filterByTopic,
+          viewProfile,
+          followUser,
+          logout,
+          isMobile,
+        };
+      },
+    }).mount('#app');
+  </script>
+</body>
+</html>
+

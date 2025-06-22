@@ -1,0 +1,36 @@
+# node_modules - nơi chứa thư viện cài bằng npm/yarn
+node_modules/
+
+# thư mục build đầu ra của Vite
+dist/
+
+# môi trường
+.env
+.env.*.local
+
+# log file
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE / editor config
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# hệ điều hành
+.DS_Store
+Thumbs.db
+
+# test coverage
+coverage/
+
+# local dev server files (nếu có dùng plugin như vite-plugin-pwa)
+.vite/
+
+# hệ thống lock
+package-lock.json
+    
